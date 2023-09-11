@@ -1,0 +1,14 @@
+extends: relaxed
+rules:
+  comments-indentation: disable
+  colons: false
+  line-length:
+    max: 100
+    level: warning
+  new-line-at-end-of-file:
+    level: warning
+  trailing-spaces:
+    level: warning
+indentation:
+  spaces: consistent
+  indent-sequences: consistent

@@ -1,0 +1,29 @@
+---
+- hosts: "{{ target_env }}"
+  become: true
+  gather_facts: false
+  vars:
+    main_directory: /home/gatus
+  tasks:
+    - debug:
+        var: target_env
+
+    - name: Set environment file
+      set_fact:
+        config_file: "../configuration/{{ target_env | split('_') | last }}.yml"
+
+    - name: Read new configuration
+      set_fact:
+        new_config: "{{ lookup('file', config_file) }}"
+
+    - name: copy the new configuration
+      ansible.builtin.blockinfile:
+        path: "{{ main_directory }}/config/config.yaml"
+        marker: "# {mark} MANAGED BLOCK BY GITLAB PIPELINE"
+        block: "{{ new_config }}"
+        insertafter: "endpoints:"
+
+    - name: reload application
+      ansible.builtin.systemd:
+        name: gatus.service
+        state: restarted

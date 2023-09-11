@@ -1,0 +1,62 @@
+  ##
+  # partial for monitoring rules and settings.
+  # It goes under `endpoints:` attribute in gatus config.
+  # substitued in the target environment by Ansible.
+  #
+  # === Groups:
+  # 1. public.
+  # 2. intenral.
+  # 3. external .. etc.
+  #
+  #
+  - name: example website
+    group: core
+    url: "https://example.com"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: slack
+        description: |
+          healthcheck failed 3 times.
+        failure-threshold: 3
+        send-on-resolved: true
+
+  - name: example email
+    group: public
+    url: "https://example.com"
+    interval: 24h
+    conditions:
+      - "[CERTIFICATE_EXPIRATION] > 192h"
+    alerts:
+      - type: slack
+        description: |
+          * certificate will expire within 7 days.
+          * [source: https://gatus]
+        failure-threshold: 1
+        send-on-resolved: true
+      - type: email
+        description: |
+          certificate will expire within 7 days.
+          [source: https://gatus]
+        failure-threshold: 1
+        send-on-resolved: true
+
+  - name: example api
+    group: external
+    url: "https://api.example.com"
+    enabled: false
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == UP"
+      - "[RESPONSE_TIME] < 5000"
+      - "[BODY].status == UP"
+      - "[BODY].endpoints.myExample == OK"
+    alerts:
+      - type: slack
+        description: |
+          healthcheck item(s) run over ~ [4 minutes].
+          [source: https://gatus]
+        failure-threshold: 4
+        send-on-resolved: true
